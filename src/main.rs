@@ -4,10 +4,12 @@ use std::io::prelude::*;
 fn main() {
     do_stuff();
     compare_ranges(3);
+
+    move_sub();
 }
 
 fn do_stuff() {
-    let mut file = File::open("src/input.txt").unwrap();
+    let mut file = File::open("data/input.txt").unwrap();
     let mut contents = String::new();
     file.read_to_string(&mut contents).unwrap();
 
@@ -36,7 +38,7 @@ fn compare_ranges(array_count: i32) {
         Vec::new(),
     ]);
 
-    let mut file = File::open("src/input.txt").unwrap();
+    let mut file = File::open("data/input.txt").unwrap();
     let mut contents = String::new();
     file.read_to_string(&mut contents).unwrap();
 
@@ -76,4 +78,36 @@ fn compare_ranges(array_count: i32) {
     }
 
     println!("Range Depth Count: {}", depth_count);
+}
+
+
+fn move_sub() {
+    let mut file = File::open("data/day2.txt").unwrap();
+    let mut contents = String::new();
+    file.read_to_string(&mut contents).unwrap();
+
+    let mut x = 0;
+    let mut depth = 0;
+    let mut aim = 0;
+    for line in contents.lines() {
+        let mut chunks = line.split_whitespace();
+        let direction = chunks.next().unwrap();
+        let val = chunks.next().unwrap().parse::<i32>().unwrap();
+
+        match direction {
+            "forward" => {
+                x += val;
+                depth += aim * val;
+            }
+            "up" => {
+                aim -= val;
+            }
+            "down" => {
+                aim += val;
+            }
+            _ => println!("Error: {}", direction),
+        }
+    }
+
+    println!("Depth: {} Horizontal Position: {}", depth, x);
 }
