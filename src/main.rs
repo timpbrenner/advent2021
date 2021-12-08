@@ -6,6 +6,7 @@ use crate::days::day3::{get_power, get_o2_and_co2};
 use crate::days::day4::{bingo, last_bingo};
 use crate::days::day5::grid;
 use crate::days::day6::lanternfish_count;
+use crate::days::day7::crab_sub;
 
 fn main() {
     get_depth();
@@ -16,6 +17,7 @@ fn main() {
     bingo();
     last_bingo();
     grid();
-
     lanternfish_count();
+
+    crab_sub();
 }
