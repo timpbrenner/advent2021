@@ -56,6 +56,6 @@ fn new_way(fish: Vec<i32>) {
   }
 
   let f = hash.values().sum::<usize>() as u64;
-  println!("FINAL: {}", f);
+  println!("Big ol number: {}", f);
 
 }

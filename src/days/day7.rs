@@ -1,4 +1,3 @@
-
 use std::fs::File;
 use std::io::prelude::*;
 
@@ -17,7 +16,7 @@ pub fn crab_sub() {
       let mut fuel_cons = 0;
 
       for crab_pos in &sub_pos {
-        fuel_cons += get_fuel_cost((crab_pos - pos).abs());
+        fuel_cons += get_fuel_cost((crab_pos - pos).abs(), true);
       }
 
       if fuel_cons < min_fuel {
@@ -29,11 +28,15 @@ pub fn crab_sub() {
     println!("Final Min Pos: {} Min Fuel {}", min_pos, min_fuel);
 }
 
-fn get_fuel_cost(movement: i32) -> i32 {
+fn get_fuel_cost(movement: i32, simple: bool) -> i32 {
+  if simple {
+    return movement;
+  }
+
   let mut total = 0;
   let mut cost = 1;
 
-  for i in 1..=movement {
+  for _ in 1..=movement {
     total += cost;
     cost += 1;
   }

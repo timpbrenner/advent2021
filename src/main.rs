@@ -7,6 +7,7 @@ use crate::days::day4::{bingo, last_bingo};
 use crate::days::day5::grid;
 use crate::days::day6::lanternfish_count;
 use crate::days::day7::crab_sub;
+use crate::days::day8::weird_number_thing;
 
 fn main() {
     get_depth();
@@ -18,6 +19,7 @@ fn main() {
     last_bingo();
     grid();
     lanternfish_count();
-
     crab_sub();
+
+    weird_number_thing();
 }
