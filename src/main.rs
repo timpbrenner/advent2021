@@ -10,6 +10,7 @@ use crate::days::day7::crab_sub;
 use crate::days::day8::weird_number_thing;
 use crate::days::day9::low_danger;
 use crate::days::day10::syntax_matching;
+use crate::days::day11::flashes;
 
 fn main() {
     get_depth();
@@ -24,6 +25,7 @@ fn main() {
     crab_sub();
     weird_number_thing();
     low_danger();
- 
     syntax_matching();
+
+    flashes();
 }

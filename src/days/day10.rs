@@ -9,7 +9,6 @@ pub fn syntax_matching() {
     file.read_to_string(&mut contents).unwrap();
 
     let closure_map = closure_map();
-    let score_map = score_map();
     let mut total_scores = Vec::<i64>::new();
 
     for line in contents.lines() {
@@ -32,13 +31,12 @@ pub fn syntax_matching() {
     }
 
     total_scores.sort();
-    let selected_index = (total_scores.len() / 2);
+    let selected_index = total_scores.len() / 2;
     println!("Middle Score: {}", total_scores[selected_index]);
 }
 
 fn valid_line(line: &str) -> bool {
     let closure_map = closure_map();
-    let score_map = score_map();
     let mut stack = Vec::<char>::new();
 
     for c in line.chars() {
@@ -84,11 +82,11 @@ fn closure_map() -> HashMap<char, char> {
   ])
 }
 
-fn score_map() -> HashMap<char, u32> {
-  HashMap::from([
-    (')', 3),
-    (']', 57),
-    ('}', 1197),
-    ('>', 25137),
-  ])
-}
+// fn score_map() -> HashMap<char, u32> {
+//   HashMap::from([
+//     (')', 3),
+//     (']', 57),
+//     ('}', 1197),
+//     ('>', 25137),
+//   ])
+// }
