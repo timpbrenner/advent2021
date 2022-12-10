@@ -9,6 +9,7 @@ use crate::days::day5::crane_it_up;
 use crate::days::day6::start_packet;
 use crate::days::day7::traverse;
 use crate::days::day8::visible;
+use crate::days::day9::move_knot;
 
 fn main() {
   get_calories();
@@ -18,6 +19,6 @@ fn main() {
   crane_it_up();
   start_packet();
   traverse();
-
   visible();
+  move_knot();
 }
