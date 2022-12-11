@@ -87,7 +87,7 @@ pub fn move_knot() {
     let direction:char = line_parts.next().unwrap().chars().next().unwrap();
     let count:i32 = line_parts.next().unwrap().parse::<i32>().unwrap();
 
-    for i in 0..count {
+    for _ in 0..count {
       head.move_to(direction);
       knot_1.trail(head);
       knot_2.trail(knot_1);
