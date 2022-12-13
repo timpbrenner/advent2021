@@ -12,6 +12,7 @@ use crate::days::day8::visible;
 use crate::days::day9::move_knot;
 use crate::days::day10::cycle;
 use crate::days::day11::monkey;
+use crate::days::day12::hike;
 
 fn main() {
   get_calories();
@@ -25,4 +26,6 @@ fn main() {
   move_knot();
   cycle();
   monkey();
+
+  hike();
 }

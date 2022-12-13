@@ -1,4 +1,4 @@
-use std::collections::{HashMap, VecDeque};
+use std::collections::VecDeque;
 
 #[derive(Debug)]
 struct Monkey {
@@ -90,7 +90,7 @@ pub fn monkey() {
     false_destination: 3,
   });
 
-  for round in 1..=10000 {
+  for _round in 1..=10000 {
     for i in 0..monkeys.len() {
       let monkey = &mut monkeys[i];
 
