@@ -13,7 +13,8 @@ mod util;
 // use crate::days::day10::cycle;
 // use crate::days::day11::monkey;
 // use crate::days::day12::hike;
-use crate::days::day13::{pairs, pairs_two};
+// use crate::days::day13::{pairs, pairs_two};
+use crate::days::day14::drip;
 
 fn main() {
   // get_calories();
@@ -28,7 +29,8 @@ fn main() {
   // cycle();
   // monkey();
   // hike();
+  // pairs();
+  // pairs_two();
 
-  pairs();
-  pairs_two();
+  drip();
 }
