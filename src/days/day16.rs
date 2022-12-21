@@ -16,45 +16,81 @@ struct Valve {
 pub fn pipes() {
   let mut valves = get_valves();
 
-  let mut flow:u32 = 0;
-  let mut opened: Vec<String> = Vec::new();
-  let mut current:String = "AA".to_string();
-  for min in 0..29 {
-    println!("");
-    println!("TICK({}): {} {}", min + 1, current, flow);
-    println!("_____________________");
-
-    flow += get_flow(&valves, &opened);
-    tick(&mut current, &mut valves, &mut opened, min);
-
-   break;
+  for (name, valve) in valves.clone() {
+    populate_paths(&name, &mut valves);
   }
 
-   println!("FLOW: {}", flow);
+  println!("GRID CREATED");
+
+  let current_valve = valves.get("AA").unwrap();
+  let (max_flow, steps) = get_max_flow(current_valve, &valves, 1, Vec::new(), 0, Vec::new());
+
+  for step in steps {
+    println!("{}", step);
+  }
+
+  println!("MAX FLOW: {}", max_flow);
 }
 
-fn get_flow(valves: &HashMap<String, Valve>, opened: &Vec<String>) -> u32 {
-  opened.iter().map(|v| valves[v].flow ).sum()
+fn get_max_flow(current_valve: &Valve, valves: &HashMap<String, Valve>, min: u32, opened: Vec<String>, current_flow: u32, steps: Vec<String>) -> (u32, Vec<String>) {
+  let mut flow_opened = opened.clone();
+  let mut flow_min = min.clone();
+  let mut flow_flow = current_flow.clone();
+  let mut flow_steps = steps.clone();
+
+  if opened.len() == current_valve.paths.len() {
+    let opened_flow:u32 = flow_opened.iter().map(|v| valves.get(v).unwrap().flow).sum();
+    return (flow_flow + opened_flow * (31 - min), flow_steps);
+  }
+
+  for (name, path) in &current_valve.paths {
+    if flow_opened.contains(name) {
+      continue;
+    }
+
+    let mut branch_min = flow_min.clone();
+    let mut branch_opened = flow_opened.clone();
+    let mut branch_flow = current_flow.clone();
+    let mut branch_steps = flow_steps.clone();
+    let opened_flow:u32 = branch_opened.iter().map(|v| valves.get(v).unwrap().flow).sum();
+    let mut branch_valve = current_valve;
+
+    for branch_name in path {
+      branch_valve = valves.get(branch_name).unwrap();
+
+      branch_steps.push(format!("== Minute {} ==\nValves are open: {:?}, releasing {} pressure\nYou move to valve {}\n", branch_min, branch_opened, opened_flow, branch_valve.name));
+      branch_min += 1;
+      branch_flow += opened_flow;
+    }
+
+    branch_steps.push(format!("== Minute {} ==\nValves are open: {:?}, releasing {} pressure\nYou open valve {}\n", branch_min, branch_opened, opened_flow, branch_valve.name));
+    branch_opened.push(branch_valve.name.clone());
+    branch_min += 1;
+    branch_flow += opened_flow;
+
+    println!("MIN: {}", min);
+
+    let branch_valve = valves.get(name).unwrap();
+    let (max_flow, max_steps) = get_max_flow(branch_valve, valves, branch_min, branch_opened.clone(), branch_flow, branch_steps);
+    if max_flow > flow_flow {
+      flow_flow = max_flow;
+      flow_steps = max_steps;
+    }
+  }
+
+  return (flow_flow, flow_steps);
 }
 
-fn tick(current:&mut String, valves: &mut HashMap<String, Valve>, opened: &mut Vec<String>, min:u32) {
-  let current_valve = valves[current].clone();
-  if !opened.contains(&current) && current_valve.flow > 0{
-    opened.push(current.clone());
-    println!("Open Valve: {} - {:?}", current.clone(), opened);
-    return;
-  }
+fn populate_paths(current:&String, valves: &mut HashMap<String, Valve>) {
+  let pass_in = valves.clone();
+  let current_valve = valves.get_mut(current).unwrap();
+  for (name, valve) in &pass_in {
+    if valve.flow == 0 {
+      continue;
+    }
 
-  populate_paths(current, valves);
-  let t = get_target(current, valves, opened, min);
-  if t.is_none() {
-    return;
+    current_valve.paths.insert(name.clone(), get_path(&pass_in, (*current).clone(), name.clone()));
   }
-  let target = t.unwrap();
-  let mut path = get_path(valves, (*current).clone(), target.clone());
-  println!("Target: {} - {:?}", target.clone(), path.clone());
-
-  *current = path.pop_front().unwrap();
 }
 
 fn get_path(valves: &HashMap<String, Valve>, current: String, target: String) -> VecDeque<String> {
@@ -62,12 +98,10 @@ fn get_path(valves: &HashMap<String, Valve>, current: String, target: String) ->
   let mut path:VecDeque<String> = VecDeque::new();
 
   for branch in &current_valve.branches {
-    // println!("FIND FOR BRANCH: {}", branch);
     let branch_path = rec_path(valves, branch, target.clone(), VecDeque::from([branch.clone()]));
 
     if (path.len() == 0|| path.len() > branch_path.len()) && branch_path.len() > 0  {
       path = branch_path;
-      // println!("Set path {:?}", path);
     }
   }
 
@@ -76,16 +110,13 @@ fn get_path(valves: &HashMap<String, Valve>, current: String, target: String) ->
 
 fn rec_path(valves: &HashMap<String, Valve>, current: &String, target: String, path: VecDeque<String>) -> VecDeque<String> {
   if current == &target {
-    // println!("FOUND: {} - {:?}", path.len(), path);
     return path;
   }
 
   let current_valve = valves[current].clone();
   let mut r_path:VecDeque<String> = VecDeque::new();
-  // println!("Branches: {:?}", &current_valve.branches);
   for branch in &current_valve.branches {
     if path.contains(branch) {
-      // println!("SKIP");
       continue;
     }
 
@@ -101,43 +132,8 @@ fn rec_path(valves: &HashMap<String, Valve>, current: &String, target: String, p
   return r_path;
 }
 
-fn get_target(current: &String, valves: &HashMap<String, Valve>, opened: &mut Vec<String>, min:u32) -> Option<String> {
-  let current = valves[current].clone();
-  println!("PATHS: {:?}", current.paths.values());
-  for (name, path) in current.paths {
-    let target = valves[&name].clone();
-    println!("PATH: {} - {:?}", name, path);
-    let time_left = 30 - min - path.len() as u32;
-    let expected_amount = time_left * target.flow;
-
-    println!("{} * {} = {}", time_left, target.flow, expected_amount);
-  }
-
-  let result = valves.values().filter(|v| v.flow > 0 && !opened.contains(&v.name)).max_by_key(|v|{
-    v.flow
-  });
-
-  if result.is_none() {
-    return None;
-  }
-
-  Some(result.unwrap().name.clone())
-}
-
-fn populate_paths(current:&String, valves: &mut HashMap<String, Valve>) {
-  let pass_in = valves.clone();
-  let current_valve = valves.get_mut(current).unwrap();
-  for (name, valve) in &pass_in {
-    if valve.flow == 0 {
-      continue;
-    }
-
-    current_valve.paths.insert(name.clone(), get_path(&pass_in, (*current).clone(), name.clone()));
-  }
-}
-
 fn get_valves() -> HashMap<String, Valve> {
-  let contents = open_file("data/day16_test.txt");
+  let contents = open_file("data/day16.txt");
   let mut valves = HashMap::new();
 
   for line in contents.lines() {

@@ -16,8 +16,8 @@ mod util;
 // use crate::days::day13::{pairs, pairs_two};
 // use crate::days::day14::drip;
 // use crate::days::day15::beacon;
-// use crate::days::day16::pipes;
-use crate::days::day17::tetris;
+use crate::days::day16::pipes;
+// use crate::days::day17::tetris;
 
 fn main() {
   // get_calories();
@@ -36,6 +36,6 @@ fn main() {
   // pairs_two();
   // drip();
   // beacon();
-  // pipes();
-  tetris();
+  pipes();
+  // tetris();
 }
