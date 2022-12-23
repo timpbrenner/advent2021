@@ -3,7 +3,6 @@ use pathfinding::prelude::bfs;
 use regex::Regex;
 use std::collections::{VecDeque, HashMap};
 use std::fmt::*;
-use std::io;
 
 #[derive(Clone, Debug)]
 struct Valve {
@@ -16,7 +15,7 @@ struct Valve {
 pub fn pipes() {
   let mut valves = get_valves();
 
-  for (name, valve) in valves.clone() {
+  for (name, _valve) in valves.clone() {
     populate_paths(&name, &mut valves);
   }
 
@@ -31,13 +30,11 @@ pub fn pipes() {
 }
 
 fn get_max_flow(current_valve: &Valve, valves: &HashMap<String, Valve>, min: u32, opened: Vec<String>, current_flow: u32, steps: Vec<String>) -> (u32, Vec<String>) {
-  let mut flow_opened = opened.clone();
-  let mut flow_min = min.clone();
   let mut flow_flow = current_flow.clone();
   let mut flow_steps = steps.clone();
 
   if opened.len() == current_valve.paths.len() {
-    let opened_flow:u32 = flow_opened.iter().map(|v| valves.get(v).unwrap().flow).sum();
+    let opened_flow:u32 = opened.iter().map(|v| valves.get(v).unwrap().flow).sum();
     return (flow_flow + opened_flow * (31 - min), flow_steps);
   }
 
@@ -46,12 +43,12 @@ fn get_max_flow(current_valve: &Valve, valves: &HashMap<String, Valve>, min: u32
   }
 
   for (name, path) in &current_valve.paths {
-    if flow_opened.contains(name) {
+    if opened.contains(name) {
       continue;
     }
 
-    let mut branch_min = flow_min.clone();
-    let mut branch_opened = flow_opened.clone();
+    let mut branch_min = min.clone();
+    let mut branch_opened = opened.clone();
     let mut branch_flow = current_flow.clone();
     let mut branch_steps = steps.clone();
     let opened_flow:u32 = branch_opened.iter().map(|v| valves.get(v).unwrap().flow).sum();
@@ -104,6 +101,7 @@ fn get_algo_path(valves: &HashMap<String, Valve>, current: String, target: Strin
   path.pop_front();
   path
 }
+
 fn get_valves() -> HashMap<String, Valve> {
   let contents = open_file("data/day16.txt");
   let mut valves = HashMap::new();

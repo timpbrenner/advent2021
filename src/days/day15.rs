@@ -1,11 +1,7 @@
 use crate::util::open_file;
 use regex::Regex;
 use std::fmt::*;
-use std::collections::HashSet;
-
 use std::ops::RangeInclusive;
-
-use itertools::Itertools;
 
 struct Signal {
   location: Pos,
@@ -45,11 +41,6 @@ pub fn beacon() {
       y_offset = signal.beacon.1 - signal.distance;
     }
   }
-
-  // let mut grid:Vec<Vec<char>> = populate_grid(&signals);
-  // display_grid(&grid, y_offset as usize);
-
-  // print_bad_count(&signals);
 
   let input = parse().unwrap();
   let size = 4_000_000;
@@ -137,36 +128,6 @@ fn row_ranges(row: i32, pairs: &[[Pos; 2]]) -> Vec<RangeInclusive<i32>> {
     merged_ranges
 }
 
-fn print_bad_count(signals: &Vec<Signal>) {
-  let mut bad_spots:HashSet<Pos> = HashSet::new();
-
-  let mut bad_count = 0;
-  let mut conflict_count = 0;
-  let y = 2_000_000;
-
-  for s in signals {
-    if y < (s.location.1 - s.distance) || y > (s.location.1 + s.distance) {
-      continue;
-    }
-
-    for x in (s.location.0 - s.distance)..(s.location.0 + s.distance) {
-      let this_distance = (s.location.0 - x).abs() + (s.location.1 - y).abs();
-
-      if (this_distance > s.distance) ||
-        (s.location.0 == x && s.location.1 == y) ||
-        (s.beacon.0 == x && s.beacon.1 == y) {
-        continue;
-      }
-
-      bad_spots.insert(Pos(x, y));
-    }
-  }
-
-  // println!("Bad Spots: {:?}", bad_spots);
-  println!("Bad Count: {}", bad_spots.len());
-
-}
-
 fn get_signals(contents:String) -> Vec<Signal> {
   let mut signals:Vec<Signal> = Vec::new();
 
@@ -190,43 +151,4 @@ fn get_signals(contents:String) -> Vec<Signal> {
   }
 
   return signals;
-}
-
-fn display_grid(grid:&Vec<Vec<char>>, y_offset:usize) {
-  for y in 0..=grid.len() {
-    let mut line:Vec<char> = Vec::new();
-
-    for x in 0..=grid[0].len() {
-      if x >= grid.len() {
-        continue;
-      }
-          
-      line.push(grid[x][y]);
-    }
-    println!("{} {}", y as i32 - y_offset as i32, line.iter().collect::<String>());
-  }
-}
-
-fn populate_grid(signals: &Vec<Signal>) -> Vec<Vec<char>> {
-  let mut grid:Vec<Vec<char>> = vec![vec!['.'; 4_000_000]; 4_000_000]; 
-
-  for signal in signals {
-    // grid[(signal.location.0) as usize][(signal.location.1) as usize] = 'S';
-    // grid[(signal.beacon.0) as usize][(signal.beacon.1) as usize] = 'B';
-
-    for x in 0..4_000_000 {
-      println!("X: {}", x);
-      for y in 0..4_000_000 {
-        let distance = (x - signal.location.0).abs() + (y - signal.location.1).abs();
-
-        if grid[x as usize][y as usize] != '.' || distance > signal.distance {
-          continue;
-        }
-
-        grid[x as usize][y as usize] = '#';
-      }
-    }
-  }
-
-  return grid;
 }

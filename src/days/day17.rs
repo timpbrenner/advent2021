@@ -4,7 +4,7 @@ use std::collections::VecDeque;
 
 pub fn tetris() {
   let contents = open_file("data/day17_test.txt");
-  let mut jets = contents.chars().collect::<Vec<char>>();
+  let jets = contents.chars().collect::<Vec<char>>();
 
   let mut board:VecDeque<VecDeque<char>> = VecDeque::from([
     VecDeque::from(['.','.','.','.','.','.','.']),
@@ -13,6 +13,8 @@ pub fn tetris() {
   ]);
 
   let mut jet_index = 0;
+
+  display_board(&board);
 
   for tick in 1..=2022 {
     trim_board(&mut board, 3);
@@ -51,7 +53,7 @@ fn trim_board(board: &mut VecDeque<VecDeque<char>>, leave_count:u32) {
     return;
   }
 
-  for i in 0..(empty_row_count - leave_count) {
+  for _ in 0..(empty_row_count - leave_count) {
     board.pop_front();
   }
 }
@@ -67,7 +69,7 @@ fn fall(board: &mut VecDeque<VecDeque<char>>) -> bool {
 
       if y + 1 == board.len() || board[y + 1][x] == '#' {
         success = false;
-        break;;
+        break;
       }
     }
 
@@ -91,7 +93,7 @@ fn fall(board: &mut VecDeque<VecDeque<char>>) -> bool {
 fn jet_of_air(jet: char, board: &mut VecDeque<VecDeque<char>>) {
   let mut new_board = board.clone();
 
-  for mut row in new_board.iter_mut().rev() {
+  for row in new_board.iter_mut().rev() {
     for x in 0..row.len() {
       let c = row[x];
       if c != '@' {
@@ -114,7 +116,7 @@ fn jet_of_air(jet: char, board: &mut VecDeque<VecDeque<char>>) {
     }
   }
 
-  for mut row in board {
+  for row in board {
     match jet {
       '>' => {
         for x in (0..row.len() - 1).rev() {

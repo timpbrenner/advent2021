@@ -10,8 +10,6 @@ use nom::{
     IResult, Parser,
 };
 
-type Packets = Vec<Pair>;
-
 #[derive(Debug)]
 pub struct Pair {
     left: Packet,

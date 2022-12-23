@@ -22,18 +22,18 @@ pub fn drip() {
 
   let mut sands = 0;
   loop {
-    if !drop_sand(&mut grid, highest_y + 2) {
+    if !drop_sand(&mut grid) {
       break;
     }
-    // display_grid(&grid);
 
     sands +=1 ;
   }
 
+  display_grid(&grid);
   println!("Sands: {}", sands);
 }
 
-fn drop_sand(grid:&mut Vec<Vec<bool>>, floor: i32) -> bool {
+fn drop_sand(grid:&mut Vec<Vec<bool>>) -> bool {
   let mut sand_pos = Pos(500,0);
 
   loop {
