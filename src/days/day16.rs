@@ -1,9 +1,9 @@
 use crate::util::open_file;
+use pathfinding::prelude::bfs;
 use regex::Regex;
+use std::collections::{VecDeque, HashMap};
 use std::fmt::*;
-use std::collections::HashMap;
 use std::io;
-use std::collections::VecDeque;
 
 #[derive(Clone, Debug)]
 struct Valve {
@@ -19,8 +19,6 @@ pub fn pipes() {
   for (name, valve) in valves.clone() {
     populate_paths(&name, &mut valves);
   }
-
-  println!("GRID CREATED");
 
   let current_valve = valves.get("AA").unwrap();
   let (max_flow, steps) = get_max_flow(current_valve, &valves, 1, Vec::new(), 0, Vec::new());
@@ -43,6 +41,10 @@ fn get_max_flow(current_valve: &Valve, valves: &HashMap<String, Valve>, min: u32
     return (flow_flow + opened_flow * (31 - min), flow_steps);
   }
 
+  if min > 30 {
+    return (flow_flow, flow_steps); 
+  }
+
   for (name, path) in &current_valve.paths {
     if flow_opened.contains(name) {
       continue;
@@ -51,7 +53,7 @@ fn get_max_flow(current_valve: &Valve, valves: &HashMap<String, Valve>, min: u32
     let mut branch_min = flow_min.clone();
     let mut branch_opened = flow_opened.clone();
     let mut branch_flow = current_flow.clone();
-    let mut branch_steps = flow_steps.clone();
+    let mut branch_steps = steps.clone();
     let opened_flow:u32 = branch_opened.iter().map(|v| valves.get(v).unwrap().flow).sum();
     let mut branch_valve = current_valve;
 
@@ -61,6 +63,10 @@ fn get_max_flow(current_valve: &Valve, valves: &HashMap<String, Valve>, min: u32
       branch_steps.push(format!("== Minute {} ==\nValves are open: {:?}, releasing {} pressure\nYou move to valve {}\n", branch_min, branch_opened, opened_flow, branch_valve.name));
       branch_min += 1;
       branch_flow += opened_flow;
+
+      if branch_min > 30 {
+        return (branch_flow, branch_steps); 
+      }
     }
 
     branch_steps.push(format!("== Minute {} ==\nValves are open: {:?}, releasing {} pressure\nYou open valve {}\n", branch_min, branch_opened, opened_flow, branch_valve.name));
@@ -68,10 +74,8 @@ fn get_max_flow(current_valve: &Valve, valves: &HashMap<String, Valve>, min: u32
     branch_min += 1;
     branch_flow += opened_flow;
 
-    println!("MIN: {}", min);
-
     let branch_valve = valves.get(name).unwrap();
-    let (max_flow, max_steps) = get_max_flow(branch_valve, valves, branch_min, branch_opened.clone(), branch_flow, branch_steps);
+    let (max_flow, max_steps) = get_max_flow(branch_valve, valves, branch_min, branch_opened.clone(), branch_flow, branch_steps.clone());
     if max_flow > flow_flow {
       flow_flow = max_flow;
       flow_steps = max_steps;
@@ -89,49 +93,17 @@ fn populate_paths(current:&String, valves: &mut HashMap<String, Valve>) {
       continue;
     }
 
-    current_valve.paths.insert(name.clone(), get_path(&pass_in, (*current).clone(), name.clone()));
+    current_valve.paths.insert(name.clone(), get_algo_path(&pass_in, (*current).clone(), name.clone()));
   }
 }
 
-fn get_path(valves: &HashMap<String, Valve>, current: String, target: String) -> VecDeque<String> {
-  let current_valve = &valves[&current];
-  let mut path:VecDeque<String> = VecDeque::new();
+fn get_algo_path(valves: &HashMap<String, Valve>, current: String, target: String) -> VecDeque<String> {
+  let result = bfs(&current, |v| valves.clone()[v].branches.clone(), |v| *v == target).unwrap();
 
-  for branch in &current_valve.branches {
-    let branch_path = rec_path(valves, branch, target.clone(), VecDeque::from([branch.clone()]));
-
-    if (path.len() == 0|| path.len() > branch_path.len()) && branch_path.len() > 0  {
-      path = branch_path;
-    }
-  }
-
-  return path;
+  let mut path = VecDeque::from(result);
+  path.pop_front();
+  path
 }
-
-fn rec_path(valves: &HashMap<String, Valve>, current: &String, target: String, path: VecDeque<String>) -> VecDeque<String> {
-  if current == &target {
-    return path;
-  }
-
-  let current_valve = valves[current].clone();
-  let mut r_path:VecDeque<String> = VecDeque::new();
-  for branch in &current_valve.branches {
-    if path.contains(branch) {
-      continue;
-    }
-
-    let mut branch_path = path.clone();
-    branch_path.push_back((&branch).to_string());
-    let other_path = rec_path(valves, branch, target.clone(), branch_path);
-
-    if (r_path.len() == 0 || r_path.len() > other_path.len()) && other_path.len() > 0  {
-      r_path = other_path;
-    }
-  }
-
-  return r_path;
-}
-
 fn get_valves() -> HashMap<String, Valve> {
   let contents = open_file("data/day16.txt");
   let mut valves = HashMap::new();
