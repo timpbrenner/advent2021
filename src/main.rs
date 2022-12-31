@@ -21,6 +21,7 @@ use crate::days::day15::beacon;
 use crate::days::day16::pipes;
 use crate::days::day17::tetris;
 use crate::days::day18::lava;
+use crate::days::day19::mine;
 
 fn main() {
   let args: Vec<String> = env::args().collect();
@@ -47,6 +48,7 @@ fn main() {
     16 => pipes(),
     17 => tetris(),
     18 => lava(),
+    19 => mine(),
     _ => println!("Need a day"),
   }
 }
